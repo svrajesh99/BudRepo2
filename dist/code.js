@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  figma.showUI(__html__, { width: 450, height: 600, title: 'Bud', position: { x: 650, y: -300 } });
+  figma.showUI(__html__, { width: 450, height: 600, title: 'Bud' });
 
   figma.ui.onmessage = (msg) => {
     if (msg.type === 'clone') {
@@ -45,6 +45,9 @@
       figma.clientStorage.deleteAsync('access_token').then(() => {
         figma.ui.postMessage({ clear_Access: true });
       });
+      figma.clientStorage.deleteAsync('refresh_token').then(() => {
+        figma.ui.postMessage({ clear_Refresh: true });
+      });
     }
     if (msg.type === 'User_Data') {
       figma.clientStorage
@@ -68,6 +71,12 @@
           console.log('Access Token Removed Successfully');
         })
         .catch((error) => console.error(error));
+      figma.clientStorage
+        .deleteAsync('refresh_token')
+        .then(() => {
+          console.log('Access Token Removed Successfully');
+        })
+        .catch((error) => console.error(error));
       figma.ui.postMessage({ clear_Access: true });
     };
     if (msg.type === 'Get_Access') {
@@ -75,10 +84,23 @@
         .getAsync('access_token')
         .then((value) => {
           if (value) {
-            figma.ui.postMessage({ Get_Access: true });
+            figma.ui.postMessage({ Get_Access: true, accesstoken: value });
             setInterval(clearTokenintervel, interval);
           } else {
             figma.ui.postMessage({ Get_Access: false });
+          }
+        })
+        .catch((err) => console.error('Error retrieving value:', err));
+    }
+    if (msg.type === 'Get_Refresh') {
+      figma.clientStorage
+        .getAsync('refresh_token')
+        .then((value) => {
+          if (value) {
+            figma.ui.postMessage({ Get_Refresh: true, refreshtoken: value });
+            setInterval(clearTokenintervel, interval);
+          } else {
+            figma.ui.postMessage({ Get_Refresh: false });
           }
         })
         .catch((err) => console.error('Error retrieving value:', err));
@@ -102,7 +124,11 @@
     }
     if (msg.type === 'accessToken') {
       figma.clientStorage
-        .setAsync('access_token', msg.token)
+        .setAsync('access_token', msg.accesstoken)
+        .then(() => {})
+        .catch((err) => console.error('Error Saving value:', err));
+      figma.clientStorage
+        .setAsync('refresh_token', msg.refreshtoken)
         .then(() => {})
         .catch((err) => console.error('Error Saving value:', err));
       setInterval(clearTokenintervel, interval);

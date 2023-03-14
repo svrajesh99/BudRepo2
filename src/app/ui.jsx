@@ -57,11 +57,11 @@ const UI = ({}) => {
     const url = 'https://api.bud.dev2staging.com/v1/users/logout';
     const requestBody = { refreshToken: `${refreshToken}` };
     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-    parent.postMessage({ pluginMessage: { type: 'LogOut' } }, '*');
     axios
       .post(url, requestBody, config)
       .then((response) => {
         console.log(response.data);
+        parent.postMessage({ pluginMessage: { type: 'LogOut' } }, '*');
         setAuth(false);
       })
       .catch((error) => {
@@ -90,6 +90,7 @@ const UI = ({}) => {
 
   useEffect(() => {
     parent.postMessage({ pluginMessage: { type: 'Get_Access' } }, '*');
+    parent.postMessage({ pluginMessage: { type: 'Get_Refresh' } }, '*');
     parent.postMessage({ pluginMessage: { type: 'Get_userData' } }, '*');
     window.onmessage = (event) => {
       let data = event.data.pluginMessage?.user_data;
@@ -97,13 +98,21 @@ const UI = ({}) => {
         setUserData(data);
       }
       let clear_Access = event.data.pluginMessage?.clear_Access;
-      if (clear_Access === true) {
+      let clear_Refresh = event.data.pluginMessage?.clear_Refresh;
+      if (clear_Access === true && clear_Refresh === true) {
         setAuth(false);
+        setAccessToken();
+        setRefreshToken();
       }
       let process = event.data.pluginMessage?.process;
       let Access = event.data.pluginMessage?.Get_Access;
-      if (Access === true) {
+      let Accesstoken = event.data.pluginMessage?.accesstoken;
+      let Refresh = event.data.pluginMessage?.Get_Refresh;
+      let Refreshtoken = event.data.pluginMessage?.refreshtoken;
+      if (Access === true && Refresh === true) {
         setAuth(true);
+        setAccessToken(Accesstoken);
+        setRefreshToken(Refreshtoken);
       } else if (process == 'LoginProcess') {
         let windowURL = event.data.pluginMessage?.windowURL;
         let pollURL = event.data.pluginMessage?.pollURL;
@@ -122,7 +131,10 @@ const UI = ({}) => {
             }
           } else {
             clearInterval(fetchAccessTokenTimer);
-            window.parent.postMessage({ pluginMessage: { type: 'accessToken', token: acTK } }, '*');
+            window.parent.postMessage(
+              { pluginMessage: { type: 'accessToken', accesstoken: acTK, refreshtoken: rfTK } },
+              '*'
+            );
             setAuth(true);
             console.log(acTK);
             setAccessToken(acTK);
