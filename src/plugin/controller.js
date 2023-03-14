@@ -59,7 +59,7 @@ figma.ui.onmessage = (msg) => {
       })
       .catch((err) => console.error('Error retrieving value:', err));
   }
-  const interval = 1 * 60 * 1000;
+  const interval = 60 * 60 * 1000;
   const clearTokenintervel = () => {
     figma.clientStorage
       .deleteAsync('access_token')
