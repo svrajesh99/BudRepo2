@@ -89,31 +89,18 @@ figma.ui.onmessage = (msg) => {
         }
       })
       .catch((err) => console.error('Error retrieving value:', err));
-      figma.clientStorage
+    figma.clientStorage
       .getAsync('refresh_token')
       .then((value) => {
         if (value) {
-          figma.ui.postMessage({  Get_Refresh: true, refreshtoken: value });
+          figma.ui.postMessage({ Get_Refresh: true, refreshtoken: value });
           setInterval(clearTokenintervel, interval);
         } else {
-          figma.ui.postMessage({  Get_Refresh: false });
+          figma.ui.postMessage({ Get_Refresh: false });
         }
       })
       .catch((err) => console.error('Error retrieving value:', err));
   }
-  // if (msg.type === 'Get_Refresh') {
-  //   figma.clientStorage
-  //     .getAsync('refresh_token')
-  //     .then((value) => {
-  //       if (value) {
-  //         figma.ui.postMessage({ type: 'Refresh', Get_Refresh: true, refreshtoken: value });
-  //         setInterval(clearTokenintervel, interval);
-  //       } else {
-  //         figma.ui.postMessage({ type: 'Refresh', Get_Refresh: false });
-  //       }
-  //     })
-  //     .catch((err) => console.error('Error retrieving value:', err));
-  // }
   if (msg.type === 'login') {
     async function fetchCode(url) {
       const response = await fetch(url);
